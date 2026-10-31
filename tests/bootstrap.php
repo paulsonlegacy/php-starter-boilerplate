@@ -29,6 +29,7 @@ define('MEDIA_ROOT', ROOT . '/media');
 define('STATIC_ROOT', ROOT . '/assets');
 define('DOMAIN', $_ENV['APP_DOMAIN'] ?? 'localhost');
 define('APP_ENV', 'testing');
+define('APP_DEBUG', true);
 define('EMAIL_HOST', '');
 define('EMAIL_USERNAME', '');
 define('EMAIL_PASSWORD', '');

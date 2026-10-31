@@ -51,9 +51,25 @@ define('EMAIL_USERNAME', $_ENV['EMAIL_USERNAME'] ?? '');
 define('EMAIL_PASSWORD', $_ENV['EMAIL_PASSWORD'] ?? '');
 define('EMAIL_PORT', (int)($_ENV['EMAIL_PORT'] ?? 465));
 
-// OTHERS
+// APP ENVIRONMENT
+// APP_ENV — where the app is running: "development", "testing", or "production"
+//   Use this for config that depends on the environment (mail driver, log level, etc.)
 define('DOMAIN', $_ENV['APP_DOMAIN']);
 define('APP_ENV', $_ENV['APP_ENV'] ?? 'production');
+
+// APP_DEBUG — whether to show detailed errors in the browser (true/false)
+//   Use this for error visibility only. Keep false in production even during deploys.
+define('APP_DEBUG', ($_ENV['APP_DEBUG'] ?? 'false') === 'true');
+
+if (APP_DEBUG) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+}
 
 // SESSION CONFIGURATION
 $session_lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 10800);

@@ -99,6 +99,7 @@ C:\xampp\htdocs\my-project\    (Windows)
 Your `.env` for local dev:
 ```
 APP_ENV=development
+APP_DEBUG=true
 APP_URL=http://localhost/my-project
 APP_DOMAIN=localhost
 DB_HOST=localhost
@@ -202,6 +203,27 @@ Without `.env`, your database passwords and API keys live directly in your PHP c
    ```
 
 4. `.gitignore` excludes `.env` from Git — your secrets never leave your machine
+
+### APP_ENV vs APP_DEBUG
+
+These two settings look similar but control different things. It's easy to mix them up, so here's the difference:
+
+**`APP_ENV`** (string) tells your code *where it is running*. Use it for decisions that depend on the environment — which mail driver to use, how to configure sessions, which database to connect to.
+
+| Value | Meaning |
+|-------|---------|
+| `development` | Your local machine. Default for local dev. |
+| `testing` | Running inside PHPUnit. Set automatically by `.env.testing`. |
+| `production` | The live server. This is the default if not set. |
+
+**`APP_DEBUG`** (boolean) controls *error visibility*. When `true`, PHP shows detailed errors and stack traces in the browser. When `false`, errors are hidden from users (but still logged).
+
+| Value | Meaning |
+|-------|---------|
+| `true` | Show errors in the browser. Use during development and testing. |
+| `false` | Hide errors from users. **Always use in production.** |
+
+They are independent — you can be in `production` with `APP_DEBUG=true` temporarily to diagnose a problem, or in `development` with `APP_DEBUG=false` to test the production error experience.
 
 ### Where does .env live?
 

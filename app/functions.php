@@ -597,7 +597,7 @@ function send_mail(string $to, string $subject, string $body): bool {
         $mail->send();
         return true;
     } catch (Exception) {
-        if (APP_ENV === 'development') {
+        if (APP_DEBUG) {
             error_log("Mail error: " . $mail->ErrorInfo);
         }
         return false;
