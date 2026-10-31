@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Block access to sensitive files
+RewriteRule ^\.env$ - [F,L]
+RewriteRule ^composer\.(json|lock)$ - [F,L]
+RewriteRule ^phpunit\.xml$ - [F,L]
+RewriteRule ^vendor/ - [F,L]
+RewriteRule ^app/ - [F,L]
+RewriteRule ^tests/ - [F,L]
+
+# Route all requests through index.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
