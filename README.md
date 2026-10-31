@@ -413,6 +413,235 @@ On shared hosting without SSH access, you run `composer install` locally and upl
 
 ---
 
+## Upgrading: ORM and Migration Libraries
+
+This boilerplate uses raw SQL with PDO — which is simple, fast, and gives you full control. But as your project grows, you may want two things that raw SQL doesn't give you:
+
+1. **An ORM** — write PHP instead of SQL, switch databases without rewriting queries
+2. **A migration tool** — version-controlled schema changes with up/down rollback
+
+Here are the most popular options and how to use them with this boilerplate.
+
+### ORM: Eloquent (Laravel's ORM — works standalone)
+
+**Eloquent** is the ORM that Laravel uses, but it's a **standalone Composer package** — you can use it in any PHP project without installing Laravel. It's the most popular PHP ORM by far.
+
+**Install:**
+```bash
+composer require illuminate/database illuminate/events
+```
+
+**Setup** — add this to `app/init.php` after the config is loaded:
+```php
+use Illuminate\Database\Capsule\Manager as DB;
+
+$capsule = new DB;
+$capsule->addConnection([
+    'driver'    => $_ENV['DB_DRIVER'] ?? 'mysql',
+    'host'      => DBHOST,
+    'database'  => DBNAME,
+    'username'  => DBUSER,
+    'password'  => DBPASS,
+    'charset'   => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+    'prefix'    => '',
+]);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
+```
+
+**How your code changes** — here's a side-by-side comparison:
+
+```php
+// ─── BEFORE: raw SQL with query_db() ───
+
+// Fetch a user by email
+$users = query_db("SELECT * FROM users WHERE email = :email LIMIT 1", ['email' => $email]);
+$user = $users[0] ?? null;
+
+// Insert a new user
+query_db(
+    "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)",
+    ['username' => $username, 'email' => $email, 'password' => $hashed]
+);
+
+// Update a user
+query_db(
+    "UPDATE users SET last_login = NOW() WHERE id = :id LIMIT 1",
+    ['id' => $user_id]
+);
+
+// Delete a notification
+query_db("DELETE FROM notifications WHERE id = :id", ['id' => $id]);
+
+// Count active users
+$counts = query_fetch("SELECT COUNT(*) AS total FROM users WHERE is_blocked = 0");
+$total = $counts[0]['total'];
+
+
+// ─── AFTER: Eloquent ORM ───
+
+use Illuminate\Database\Capsule\Manager as DB;
+
+// Fetch a user by email
+$user = DB::table('users')->where('email', $email)->first();
+
+// Insert a new user
+DB::table('users')->insert([
+    'username' => $username,
+    'email'    => $email,
+    'password' => $hashed,
+]);
+
+// Update a user
+DB::table('users')->where('id', $user_id)->update(['last_login' => now()]);
+
+// Delete a notification
+DB::table('notifications')->where('id', $id)->delete();
+
+// Count active users
+$total = DB::table('users')->where('is_blocked', 0)->count();
+```
+
+**Database flexibility** — with Eloquent, switching databases is a config change:
+```env
+# In your .env — just change this one value:
+DB_DRIVER=mysql     # or: sqlite, pgsql, sqlsrv
+```
+
+For SQLite (useful for local dev or testing):
+```env
+DB_DRIVER=sqlite
+DB_DATABASE=/path/to/database.sqlite
+```
+
+**Note:** Eloquent uses OOP internally (it's a class-based library), but you don't need to write classes to use it. The `DB::table()` query builder shown above works with plain functions — no models required.
+
+**Docs:** [laravel.com/docs/eloquent](https://laravel.com/docs/eloquent) — the same docs apply when using Eloquent standalone.
+
+### Other ORM options
+
+| Library | Style | Popularity | Notes |
+|---------|-------|------------|-------|
+| **Eloquent** | Active Record | Most popular | Laravel's ORM, works standalone. Shown above. |
+| **Doctrine DBAL** | Query Builder | Very popular | Used by Symfony. Lower-level than Eloquent, closer to raw SQL. |
+| **Doctrine ORM** | Data Mapper | Popular | Full-featured, enterprise-grade. Steeper learning curve. |
+| **CakePHP ORM** | Active Record | Moderate | Works standalone like Eloquent. Less popular. |
+
+For this boilerplate's philosophy (simple, functional), **Eloquent's query builder** (`DB::table()`) is the best fit — it reads like SQL but with the safety and flexibility of an ORM.
+
+### Migration tool: Phinx
+
+**Phinx** is the most popular standalone PHP migration tool. It tracks which migrations have run, supports rollback, and works with MySQL, PostgreSQL, SQLite, and SQL Server.
+
+**Install:**
+```bash
+composer require robmorgan/phinx
+```
+
+**Configure** — create `phinx.php` in your project root:
+```php
+<?php
+// Load .env so Phinx can read database credentials
+require __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+return [
+    'paths' => [
+        'migrations' => 'database/migrations',
+        'seeds'      => 'database/seeds',
+    ],
+    'environments' => [
+        'default_migration_table' => 'phinx_migrations',
+        'default_environment'     => 'development',
+        'development' => [
+            'adapter' => 'mysql',
+            'host'    => $_ENV['DB_HOST'],
+            'name'    => $_ENV['DB_NAME'],
+            'user'    => $_ENV['DB_USER'],
+            'pass'    => $_ENV['DB_PASS'] ?? '',
+            'charset' => 'utf8mb4',
+        ],
+        'production' => [
+            'adapter' => 'mysql',
+            'host'    => $_ENV['DB_HOST'],
+            'name'    => $_ENV['DB_NAME'],
+            'user'    => $_ENV['DB_USER'],
+            'pass'    => $_ENV['DB_PASS'] ?? '',
+            'charset' => 'utf8mb4',
+        ],
+    ],
+];
+```
+
+**Create a migration:**
+```bash
+# Create the migrations directory
+mkdir -p database/migrations
+
+# Generate a new migration file
+./vendor/bin/phinx create CreateUsersTable
+```
+
+This creates a file like `database/migrations/20250115120000_create_users_table.php`:
+```php
+<?php
+
+use Phinx\Migration\AbstractMigration;
+
+class CreateUsersTable extends AbstractMigration
+{
+    public function change(): void
+    {
+        $table = $this->table('users');
+        $table->addColumn('fullname', 'string', ['limit' => 100])
+              ->addColumn('username', 'string', ['limit' => 30])
+              ->addColumn('email', 'string', ['limit' => 60])
+              ->addColumn('password', 'string', ['limit' => 255])
+              ->addColumn('balance', 'decimal', ['precision' => 12, 'scale' => 2, 'default' => 0])
+              ->addColumn('is_admin', 'boolean', ['default' => false])
+              ->addColumn('is_blocked', 'boolean', ['default' => false])
+              ->addColumn('date_joined', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
+              ->addIndex(['email'], ['unique' => true])
+              ->addIndex(['username'], ['unique' => true])
+              ->create();
+    }
+}
+```
+
+**Run migrations:**
+```bash
+./vendor/bin/phinx migrate                    # Run all pending migrations
+./vendor/bin/phinx rollback                   # Undo the last migration
+./vendor/bin/phinx status                     # Show which migrations have run
+```
+
+**How Phinx compares to our migrate.php:**
+
+| Feature | Our `migrate.php` | Phinx |
+|---------|-------------------|-------|
+| Create tables | Yes | Yes |
+| Track what's been run | No (uses IF NOT EXISTS) | Yes (migration history table) |
+| Add/remove columns later | Manual ALTER TABLE | Built-in methods |
+| Rollback changes | No | Yes (up/down) |
+| Multiple databases | MySQL only | MySQL, PostgreSQL, SQLite, SQL Server |
+| Learning curve | None (it's just SQL) | Moderate |
+
+**When to upgrade:** If your project is small and the schema is stable, `migrate.php` is fine. Switch to Phinx when you need to alter existing tables across environments, track migration history, or support multiple database engines.
+
+### Quick decision guide
+
+| I want to... | Stay with boilerplate | Upgrade to... |
+|--------------|----------------------|---------------|
+| Write simple queries | `query_db()` works great | — |
+| Switch between MySQL/SQLite/PostgreSQL | Not supported | Eloquent |
+| Stop writing raw SQL | — | Eloquent query builder |
+| Track schema changes and rollback | — | Phinx |
+| Use a different DB for tests | Separate test DB in `.env.testing` | Eloquent + SQLite for tests |
+
+---
+
 ## License
 
 MIT — use this boilerplate however you like.
