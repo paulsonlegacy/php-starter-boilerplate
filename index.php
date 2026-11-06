@@ -19,6 +19,15 @@
 require("./app/init.php");
 require("./controllers/index.php");
 
+set_exception_handler(function (Throwable $e): void {
+    error_log($e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+    require(APP_PATH . 'views/500.php');
+    exit;
+});
+
 // Load route definitions
 $routes = require("./routes.php");
 

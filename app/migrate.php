@@ -2,20 +2,49 @@
 
 /*
  * Database migration — run once to create tables
- * Usage: php app/migrate.php
+ * Usage: php app/migrate.php           (create tables if they don't exist)
+ *        php app/migrate.php --fresh   (drop all tables and recreate — dev only!)
  * Or:    composer migrate
  *
- * This replaces the create_tables() call that used to run on every request.
- * Run this once after deployment, or after changing the schema.
+ * Uses CREATE TABLE IF NOT EXISTS so it's safe to run multiple times.
+ *
+ * SCHEMA CHANGES DURING DEVELOPMENT:
+ *   This script only creates tables — it cannot add, remove, or rename columns.
+ *   If you change a column here, the database won't know about it.
+ *
+ *   During development (no real data): run  php app/migrate.php --fresh
+ *   This drops every table and rebuilds from scratch. All data is lost.
+ *
+ *   In production (real data you must keep): write ALTER TABLE statements.
+ *   Example: ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL AFTER email;
+ *   Run these manually or add them to a separate migration script.
  */
 
 require_once __DIR__ . '/init.php';
 
+$con = get_connection();
+$is_fresh = in_array('--fresh', $argv ?? []);
+
+$table_names = ['settings', 'users', 'notifications', 'messages'];
+
+if ($is_fresh) {
+    if (APP_ENV === 'production') {
+        echo "ERROR: --fresh is disabled in production. Use ALTER TABLE for schema changes.\n";
+        exit(1);
+    }
+
+    echo "Dropping all tables...\n";
+    $con->exec("SET FOREIGN_KEY_CHECKS = 0");
+    foreach (array_reverse($table_names) as $name) {
+        $con->exec("DROP TABLE IF EXISTS $name");
+        echo "  Dropped $name\n";
+    }
+    $con->exec("SET FOREIGN_KEY_CHECKS = 1");
+    echo "\n";
+}
+
 echo "Running migrations...\n";
 
-$con = get_connection();
-
-// Create tables — add your CREATE TABLE statements here
 $tables = [
 
     "CREATE TABLE IF NOT EXISTS settings (
