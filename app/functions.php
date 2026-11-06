@@ -135,7 +135,7 @@ function is_user_authenticated(): array {
  * @return array The authenticated user's database row
  *
  * @example In a controller:
- *   function account_dashboard(): void {
+ *   function user_dashboard(): void {
  *       $user = logged_in();  // Redirects away if not authenticated
  *       // ... rest of the handler, $user is guaranteed to exist
  *   }
@@ -186,7 +186,7 @@ function admin_logged_in(): array {
  *   $user = authenticate_user('john@test.com', 'mypassword');
  *   if ($user) {
  *       $_SESSION['user'] = $user;
- *       redirect(ROOT . '/account/dashboard');
+ *       redirect(ROOT . '/user/dashboard');
  *   } else {
  *       redirect(ROOT . '/login', 'Invalid credentials', 'danger');
  *   }
@@ -269,17 +269,17 @@ function landing_view(string $name, array $context = []): void {
 
 
 /**
- * Render an account (logged-in user) page view inside its layout.
+ * Render a logged-in user page view inside its layout.
  *
- * @param string $name    The view name (matches views/account/{name}.view.php)
+ * @param string $name    The view name (matches views/user/{name}.view.php)
  * @param array  $context Variables to pass to the template
  * @return void
  *
  * @example
- *   account_view('dashboard', ['title' => 'Dashboard', 'user' => $user]);
+ *   user_view('dashboard', ['title' => 'Dashboard', 'user' => $user]);
  */
-function account_view(string $name, array $context = []): void {
-    require(APP_PATH . "views/account/layout.view.php");
+function user_view(string $name, array $context = []): void {
+    require(APP_PATH . "views/user/layout.view.php");
     unset_message();
 }
 
@@ -329,7 +329,7 @@ function unset_message(): void {
  * @return never          This function stops execution (calls exit)
  *
  * @example Simple redirect:
- *   redirect(ROOT . '/account/dashboard');
+ *   redirect(ROOT . '/user/dashboard');
  *
  * @example Redirect with a success message:
  *   redirect(ROOT . '/login', 'Account created! Please sign in.', 'success');

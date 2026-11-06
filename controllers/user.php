@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Account controller — handles logged-in user pages
+ * User controller — handles logged-in user pages
  *
  * Every function here starts with logged_in() to enforce authentication.
  */
 
 
-function account_dashboard(): void {
+function user_dashboard(): void {
     $user = logged_in();
     $user_id = (int)$user['id'];
 
@@ -20,11 +20,11 @@ function account_dashboard(): void {
         'user'    => $user,
     ];
 
-    account_view('dashboard', $context);
+    user_view('dashboard', $context);
 }
 
 
-function account_settings(): void {
+function user_settings(): void {
     $user = logged_in();
 
     $setting = query_fetch("SELECT * FROM settings ORDER BY id DESC LIMIT 1");
@@ -37,23 +37,23 @@ function account_settings(): void {
         'csrf_token' => generate_csrf_token(),
     ];
 
-    account_view('settings', $context);
+    user_view('settings', $context);
 }
 
 
-function account_settings_update(): void {
+function user_settings_update(): void {
     $user = logged_in();
 
     if (!verify_csrf_token()) {
-        redirect(ROOT . '/account/settings', "Invalid request", 'danger');
+        redirect(ROOT . '/user/settings', "Invalid request", 'danger');
     }
 
     // TODO: implement settings update logic
-    redirect(ROOT . '/account/settings', "Settings updated", 'success');
+    redirect(ROOT . '/user/settings', "Settings updated", 'success');
 }
 
 
-function account_logout(): void {
+function user_logout(): void {
     session_destroy();
     redirect(ROOT . '/login');
 }

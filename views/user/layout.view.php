@@ -8,9 +8,9 @@
 </head>
 <body>
     <nav>
-        <a href="<?= e(ROOT) ?>/account/dashboard">Dashboard</a>
-        <a href="<?= e(ROOT) ?>/account/settings">Settings</a>
-        <a href="<?= e(ROOT) ?>/account/logout">Logout</a>
+        <a href="<?= e(ROOT) ?>/user/dashboard">Dashboard</a>
+        <a href="<?= e(ROOT) ?>/user/settings">Settings</a>
+        <a href="<?= e(ROOT) ?>/user/logout">Logout</a>
     </nav>
 
     <?php if (!empty($_SESSION['message'])): ?>
@@ -20,7 +20,7 @@
     <?php endif; ?>
 
     <main>
-        <?php require(VIEW_PATH . "account/$name.view.php"); ?>
+        <?php require(VIEW_PATH . "user/$name.view.php"); ?>
     </main>
 </body>
 </html>

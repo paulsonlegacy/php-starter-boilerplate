@@ -56,7 +56,7 @@ function landing_login_submit(): void {
     query_db("UPDATE users SET last_login = NOW() WHERE id = :id LIMIT 1", ['id' => $user['id']]);
     $_SESSION['user'] = $user;
 
-    redirect(ROOT . "/account/dashboard");
+    redirect(ROOT . "/user/dashboard");
 }
 
 

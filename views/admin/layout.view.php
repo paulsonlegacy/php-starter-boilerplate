@@ -10,7 +10,7 @@
     <nav>
         <a href="<?= e(ROOT) ?>/admin/dashboard">Dashboard</a>
         <a href="<?= e(ROOT) ?>/admin/users">Users</a>
-        <a href="<?= e(ROOT) ?>/account/logout">Logout</a>
+        <a href="<?= e(ROOT) ?>/user/logout">Logout</a>
     </nav>
 
     <?php if (!empty($_SESSION['message'])): ?>

@@ -31,7 +31,7 @@ $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'APP_URL', 'APP_DOMAIN']);
 // PHP BASE PATHS
 define('APP_PATH', $project_root . '/');
 define('MEDIA_PATH', APP_PATH . 'media/');
-define('STATIC_PATH', APP_PATH . 'assets/');
+define('STATIC_PATH', APP_PATH . 'public/');
 define('VIEW_PATH', APP_PATH . 'views/');
 
 // DATABASE
@@ -43,7 +43,7 @@ define('DBPASS', $_ENV['DB_PASS'] ?? '');
 // HTML BASE PATHS
 define('ROOT', $_ENV['APP_URL']);
 define('MEDIA_ROOT', ROOT . '/media');
-define('STATIC_ROOT', ROOT . '/assets');
+define('STATIC_ROOT', ROOT . '/public');
 
 // EMAIL
 define('EMAIL_HOST', $_ENV['EMAIL_HOST'] ?? 'smtp.gmail.com');

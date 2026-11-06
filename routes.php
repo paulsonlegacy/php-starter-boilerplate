@@ -18,9 +18,9 @@
  *   'GET /about'               => 'landing_about',
  *   'GET /login'               => 'landing_login',
  *   'POST /login'              => 'landing_login_submit',
- *   'GET /account/dashboard'   => 'account_dashboard',
- *   'GET /account/settings'    => 'account_settings',
- *   'POST /account/settings'   => 'account_settings_update',
+ *   'GET /user/dashboard'      => 'user_dashboard',
+ *   'GET /user/settings'       => 'user_settings',
+ *   'POST /user/settings'      => 'user_settings_update',
  *   'GET /admin/users'         => 'admin_users',
  *   'POST /admin/users/block'  => 'admin_block_user',
  */
@@ -37,11 +37,11 @@ return [
     'GET /contact'       => 'landing_contact',
     'POST /contact'      => 'landing_contact_submit',
 
-    // ─── Account ─────────────────────────────────────
-    'GET /account/dashboard'   => 'account_dashboard',
-    'GET /account/settings'    => 'account_settings',
-    'POST /account/settings'   => 'account_settings_update',
-    'GET /account/logout'      => 'account_logout',
+    // ─── User ────────────────────────────────────────
+    'GET /user/dashboard'   => 'user_dashboard',
+    'GET /user/settings'    => 'user_settings',
+    'POST /user/settings'   => 'user_settings_update',
+    'GET /user/logout'      => 'user_logout',
 
     // ─── Admin ───────────────────────────────────────
     'GET /admin/dashboard'     => 'admin_dashboard',
