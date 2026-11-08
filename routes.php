@@ -5,24 +5,34 @@
  *
  * Format:  'METHOD /path' => 'function_name'
  *
- * The router matches the request method + URL against these entries
- * and calls the corresponding function. The function must be defined
+ * The router tries an exact match first, then falls back to
+ * parameterized pattern matching. The matched function must be defined
  * in one of the controller files loaded by controllers/index.php.
  *
- * For pages that handle both GET (show form) and POST (process form),
- * define two routes pointing to two functions, or one function that
- * checks $_SERVER['REQUEST_METHOD'] internally.
- *
- * Examples:
+ * ── Static routes ────────────────────────────────────────────────────
+ * Plain paths — exact match only.
  *   'GET /'                    => 'landing_home',
- *   'GET /about'               => 'landing_about',
  *   'GET /login'               => 'landing_login',
  *   'POST /login'              => 'landing_login_submit',
- *   'GET /user/dashboard'      => 'user_dashboard',
- *   'GET /user/settings'       => 'user_settings',
- *   'POST /user/settings'      => 'user_settings_update',
  *   'GET /admin/users'         => 'admin_users',
- *   'POST /admin/users/block'  => 'admin_block_user',
+ *
+ * ── Parameterized routes ─────────────────────────────────────────────
+ * Use {name} placeholders to capture URL segments. Each placeholder
+ * matches one segment (no slashes). Read the value in your controller
+ * with route_param('name') — always returns a string; cast to int when
+ * the segment is a numeric ID.
+ *
+ *   'GET /posts/{slug}'        => 'landing_post_detail',
+ *   // In controller: $slug = route_param('slug');
+ *
+ *   'GET /users/{id}'          => 'admin_user_detail',
+ *   // In controller: $id = (int) route_param('id');
+ *
+ *   'GET /orders/{id}/items'   => 'user_order_items',
+ *   // In controller: $id = route_param('id'); // e.g. "ORD-00001"
+ *
+ * Note: exact routes always win over parameterized ones, so
+ * 'GET /posts/new' (exact) will never be caught by 'GET /posts/{slug}'.
  */
 
 return [

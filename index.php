@@ -45,6 +45,27 @@ if (isset($routes[$route_key])) {
     }
 }
 
+// Try parameterized routes — patterns with {param} placeholders.
+// Each {param} matches one URL segment (no slashes).
+// Matched values land in $GLOBALS['_ROUTE_PARAMS'] and are read
+// inside controllers via route_param('name').
+//
+// Examples:
+//   'GET /posts/{slug}'       matches /posts/my-first-post
+//   'GET /users/{id}'         matches /users/42
+//   'GET /orders/{id}/items'  matches /orders/ORD-00001/items
+foreach ($routes as $pattern => $handler) {
+    if (strpos($pattern, '{') === false) continue;
+    $regex = '#^' . preg_replace('/\{([^}]+)\}/', '(?P<$1>[^/]+)', $pattern) . '$#i';
+    if (preg_match($regex, $route_key, $matches)) {
+        $GLOBALS['_ROUTE_PARAMS'] = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+        if (function_exists($handler)) {
+            $handler();
+            return;
+        }
+    }
+}
+
 // 404 — no route matched
 http_response_code(404);
 require(APP_PATH . "views/404.php");

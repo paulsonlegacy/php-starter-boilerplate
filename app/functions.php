@@ -278,6 +278,31 @@ function component(string $name, array $data = []): void
 
 
 /**
+ * Read a URL parameter captured by a parameterized route.
+ *
+ * Values are always returned as strings — cast to int yourself when
+ * the segment is a numeric ID: (int) route_param('id').
+ *
+ * @param string $key     The placeholder name from the route pattern (e.g. 'slug', 'id')
+ * @param string $default Returned when the key was not captured (defaults to '')
+ * @return string         The captured segment value
+ *
+ * @example Route: 'GET /posts/{slug}'   URL: /posts/hello-world
+ *   $slug = route_param('slug');   // "hello-world"
+ *
+ * @example Route: 'GET /users/{id}'    URL: /users/42
+ *   $id = (int) route_param('id');  // 42
+ *
+ * @example Route: 'GET /items/{id}'    URL: /items/ITEM-XK9M
+ *   $id = route_param('id');        // "ITEM-XK9M"  (string slug)
+ */
+function route_param(string $key, string $default = ''): string
+{
+    return (string)($GLOBALS['_ROUTE_PARAMS'][$key] ?? $default);
+}
+
+
+/**
  * Render a landing (public) page view inside its layout.
  *
  * Loads the landing layout template, which includes the specific page
