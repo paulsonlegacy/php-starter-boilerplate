@@ -12,11 +12,7 @@
         <a href="<?= e(ROOT) ?>/login">Login</a>
     </nav>
 
-    <?php if (!empty($_SESSION['message'])): ?>
-        <div class="alert alert-<?= e($_SESSION['message_tag'] ?? 'info') ?>">
-            <?= e($_SESSION['message']) ?>
-        </div>
-    <?php endif; ?>
+    <?php component('flash-message'); ?>
 
     <main>
         <?php require(VIEW_PATH . "landing/$name.view.php"); ?>

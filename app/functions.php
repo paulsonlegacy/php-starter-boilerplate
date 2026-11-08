@@ -248,6 +248,36 @@ function username_exists(string $username): bool {
 
 
 /**
+ * Render a reusable component from components/{name}.php.
+ *
+ * Variables in $data are extracted into the component's local scope so
+ * the component file can reference them directly (e.g. $title, $body).
+ * Components should be stateless — they read $data and echo HTML only.
+ *
+ * The components/ folder sits at the project root (alongside app/, views/,
+ * controllers/) so components are a separate concern from page templates.
+ *
+ * @param string $name The component file name without .php (e.g. 'flash-message')
+ * @param array  $data Variables to make available inside the component
+ * @return void
+ *
+ * @example No data (reads directly from session / globals):
+ *   component('flash-message');
+ *
+ * @example Passing data:
+ *   component('page-hero', [
+ *       'title' => 'Welcome to ' . $context['setting']['name'],
+ *       'body'  => 'Your landing page content goes here.',
+ *   ]);
+ */
+function component(string $name, array $data = []): void
+{
+    extract($data);
+    include APP_PATH . "components/{$name}.php";
+}
+
+
+/**
  * Render a landing (public) page view inside its layout.
  *
  * Loads the landing layout template, which includes the specific page

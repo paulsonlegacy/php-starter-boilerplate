@@ -1,4 +1,4 @@
-<section>
-    <h1>Welcome to <?= e($context['setting']['name'] ?? 'the App') ?></h1>
-    <p>Your landing page content goes here.</p>
-</section>
+<?php component('page-hero', [
+    'title' => 'Welcome to ' . ($context['setting']['name'] ?? 'the App'),
+    'body'  => 'Your landing page content goes here.',
+]); ?>
